@@ -1,0 +1,6 @@
+target/
+.flattened-pom.xml
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
