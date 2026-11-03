@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-GPL--2.0-brightgreen.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
-**MyAppx Plugin : Tenant Default** 是面向 [iDempiere](https://www.idempiere.org/) 的 OSGi 插件，在空库或新环境中预置名为 **`Default`** 的租户（组织同名），并在 Bundle 启动时由 `ODT2PackActivator` 自动 Pack-in `9999*.zip`：先在 **SYSTEM** 注册实体类型 **`DEFAULT`**，再向 **`Default` 租户** 导入角色模板、本地用户、动态校验与窗口/进程个性化。用于低代码 / 多租户开发的可重复默认租户样板。
+**MyAppx Plugin : Tenant Default** 是面向 [iDempiere](https://www.idempiere.org/) 的 OSGi 插件，在空库或新环境中预置名为 **`Default`** 的租户（组织同名），并在 Bundle 启动时由 `ODT2PackActivator` 自动 Pack-in `ODT2Pack-*.zip`：先在 **SYSTEM** 注册实体类型 **`DEFAULT`**，再向 **`Default` 租户** 导入角色模板、本地用户、动态校验与窗口/进程个性化。用于低代码 / 多租户开发的可重复默认租户样板。
 
 | 项目 | 说明 |
 |------|------|
@@ -47,11 +47,11 @@
 | 能力 | 说明 |
 |------|------|
 | **首次启动创建租户** | `Activator.preInstallPackage()` 若尚不存在 `Name='Default'` 的 `AD_Client`，则调用 `CustomInitialClientSetup`（进程 **53161** 参数集）创建租户、组织、**Tenant Admins** 角色与 **Tenant Admin** 用户，并把 Client / Org / 管理员角色 UUID 写成与 2Pack 一致的种子值。 |
-| **系统级实体类型** | `999901010010_SYSTEM_Tenant_Default.zip` 在 **Client=0（SYSTEM）** 注册 `EntityType=DEFAULT`（名称 *Tenant Default*）。 |
-| **租户级样板** | `999902010010_Default_Tenant.zip` 面向 `AD_Client_UU=7695b314-7a4e-46c0-99f7-280b57ade0ed` 的 `Default` 租户：角色模板、本地用户、表级/字段级校验、窗口与进程个性化、工具栏限制。 |
+| **系统级实体类型** | `ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip` 在 **Client=0（SYSTEM）** 注册 `EntityType=DEFAULT`（名称 *Tenant Default*）。 |
+| **租户级样板** | `ODT2Pack-1.0.1_Default_Tenant.zip` 面向 `AD_Client_UU=7695b314-7a4e-46c0-99f7-280b57ade0ed` 的 `Default` 租户：角色模板、本地用户、表级/字段级校验、窗口与进程个性化、工具栏限制。 |
 | **用户偏好占位** | `UpdateUserPreferenceEventDelegate` 挂在 `MUserPreference` 的 `@AfterNew`；方法体为空，预留扩展。 |
 
-本插件 **没有** `ODTPackage*.xml` 与 `2Pack_*.zip`；启动安装仅走 `META-INF/9999*.zip`。
+本插件 **没有** `ODTPackage*.xml` 与 `2Pack_*.zip`；启动安装仅走 `META-INF/ODT2Pack-*.zip`。
 
 ---
 
@@ -63,7 +63,7 @@
 │  preInstall → 创建 Default 租户                             │
 │  packInAll  → ODTPackage*.xml（无）                         │
 │             → 2Pack_*.zip（无）                             │
-│             → 9999*.zip（按文件名排序）                      │
+│             → ODT2Pack-*.zip（按版本号排序）                      │
 └────────────────────────────┬────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────┐
@@ -77,7 +77,7 @@
 
 `Bundle-ActivationPolicy: lazy`。`Service-Component: OSGI-INF/*.xml`。
 
-`9999*.zip` 约定文件名：`yyyymmddHHMM_ClientValue_InformationalDescription.zip`，年份固定为 `9999`。本模块两个包按文件名排序后依次安装：**SYSTEM** 先于 **Default**。
+两个包按版本号安装：**`ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip`** 先于 **`ODT2Pack-1.0.1_Default_Tenant.zip`**。
 
 ---
 
@@ -113,8 +113,8 @@ myappx-plugin-tenant-default/                         # eclipse-plugin
 ├── README.en.md                                      # English
 ├── META-INF/
 │   ├── MANIFEST.MF
-│   ├── 999901010010_SYSTEM_Tenant_Default.zip        # 系统级：EntityType DEFAULT
-│   └── 999902010010_Default_Tenant.zip               # 租户 Default 字典包
+│   ├── ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip        # 系统级：EntityType DEFAULT
+│   └── ODT2Pack-1.0.1_Default_Tenant.zip               # 租户 Default 字典包
 ├── OSGI-INF/
 │   ├── DefaultAnnotationBasedEventManager.xml
 │   └── DefaultInitialSetupProcessFactory.xml
@@ -141,12 +141,12 @@ preInstallPackage()          # 若不存在 Default 租户 → CustomInitialClie
 packInAll()
     ├── packInODT()          → META-INF/ODTPackage*.xml（本模块未附带）
     ├── packIn2Pack()        → META-INF/2Pack_*.zip（本模块未附带）
-    └── packInFolder()       → META-INF/9999*.zip
+    └── packInFolder()       → META-INF/ODT2Pack-*.zip
     ↓
 postInstallPackage()         # 空钩子
 ```
 
-`9999*.zip` 按文件名中的 Client 段安装；已安装过的同名包会跳过。运行前须已部署并可解析 **MyAppx Plugin ODT**。更详细的 ODT + 2Pack 行为见同仓库 `myappx-plugin-odt/README.md`。
+`ODT2Pack-*.zip` 按文件名中的 Client 段安装；已安装过的同名包会跳过。运行前须已部署并可解析 **MyAppx Plugin ODT**。更详细的 ODT + 2Pack 行为见同仓库 `myappx-plugin-odt/README.md`。
 
 ---
 
@@ -154,8 +154,8 @@ postInstallPackage()         # 空钩子
 
 | 文件 | 角色 |
 |------|------|
-| `999901010010_SYSTEM_Tenant_Default.zip` | 系统级 Pack-in：实体类型 `DEFAULT` |
-| `999902010010_Default_Tenant.zip` | 租户 `Default` Pack-in：角色、用户、校验与个性化 |
+| `ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip` | 系统级 Pack-in：实体类型 `DEFAULT` |
+| `ODT2Pack-1.0.1_Default_Tenant.zip` | 租户 `Default` Pack-in：角色、用户、校验与个性化 |
 
 两包均为 PackOutVersion `100`，版本 `1.0.0`。
 
@@ -282,7 +282,7 @@ postInstallPackage()         # 空钩子
 
 `preInstallPackage()` 调用 `initClientSetup`：
 
-1. 查询是否已有 `Name='Default'` 的 `AD_Client`。若有，记警告并 **跳过** 创建（避免重复 Initial Client Setup），随后仍由父类 Pack-in `9999*.zip`。
+1. 查询是否已有 `Name='Default'` 的 `AD_Client`。若有，记警告并 **跳过** 创建（避免重复 Initial Client Setup），随后仍由父类 Pack-in `ODT2Pack-*.zip`。
 2. 否则以进程 **53161** 启动 `CustomInitialClientSetup`（`@Process`，由 `DefaultInitialSetupProcessFactory` 发现）。该类使用核心 **`MSetup`**：`createClient4x` → `createCalendar` → `createAccounting` → `createAndValidateDocumentTypes` → `createEntities4x`。
 3. SQL 把 UUID 写成种子，使后续租户 2Pack 能按 UUID 对齐。
 
@@ -365,7 +365,7 @@ Activator 通过 `ProcessInfo.setClassName(CustomInitialClientSetup.class.getNam
 
 1. 目标实例已安装 **MyAppx Plugin ODT**（`org.idempiere.myappx.plugin.odt`）。
 2. 将本插件 JAR 放入 iDempiere `plugins/`，OSGi 状态为 **Resolved**。Activator 在服务器启动后创建 `Default` 租户（若需要）并完成 Pack-in。
-3. 在 **Pack In** 中确认 `999901010010_SYSTEM_Tenant_Default` 与 `999902010010_Default_Tenant` 已应用。
+3. 在 **Pack In** 中确认 `ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip` 与 `ODT2Pack-1.0.1_Default_Tenant.zip` 已应用。
 
 ---
 

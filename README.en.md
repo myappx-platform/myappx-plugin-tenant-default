@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-GPL--2.0-brightgreen.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
-**MyAppx Plugin : Tenant Default** is an OSGi plugin for [iDempiere](https://www.idempiere.org/). On an empty or new database it provisions a tenant named **`Default`** (organization of the same name). On bundle start, `ODT2PackActivator` Packs-in `9999*.zip`: first the **SYSTEM** entity type **`DEFAULT`**, then tenant-level role templates, local users, dynamic validation, and window/process personalization. It is a repeatable default-tenant baseline for low-code / multi-tenant development.
+**MyAppx Plugin : Tenant Default** is an OSGi plugin for [iDempiere](https://www.idempiere.org/). On an empty or new database it provisions a tenant named **`Default`** (organization of the same name). On bundle start, `ODT2PackActivator` Packs-in `ODT2Pack-*.zip`: first the **SYSTEM** entity type **`DEFAULT`**, then tenant-level role templates, local users, dynamic validation, and window/process personalization. It is a repeatable default-tenant baseline for low-code / multi-tenant development.
 
 | Item | Value |
 |------|--------|
@@ -47,11 +47,11 @@
 | Capability | Behavior |
 |------------|----------|
 | **Create tenant on first start** | `Activator.preInstallPackage()` runs `CustomInitialClientSetup` (process **53161** parameter set) if no `AD_Client` named **`Default`** exists: tenant, organization, **Tenant Admins** role, **Tenant Admin** user, then seed UUIDs for Client / Org / admin role to match the 2Pack. |
-| **System entity type** | `999901010010_SYSTEM_Tenant_Default.zip` registers `EntityType=DEFAULT` (name *Tenant Default*) on **Client=0 (SYSTEM)**. |
-| **Tenant baseline** | `999902010010_Default_Tenant.zip` targets tenant `Default` (`AD_Client_UU=7695b314-7a4e-46c0-99f7-280b57ade0ed`): role templates, local users, table/field validation, window and process personalization, toolbar restrictions. |
+| **System entity type** | `ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip` registers `EntityType=DEFAULT` (name *Tenant Default*) on **Client=0 (SYSTEM)**. |
+| **Tenant baseline** | `ODT2Pack-1.0.1_Default_Tenant.zip` targets tenant `Default` (`AD_Client_UU=7695b314-7a4e-46c0-99f7-280b57ade0ed`): role templates, local users, table/field validation, window and process personalization, toolbar restrictions. |
 | **User preference hook** | `UpdateUserPreferenceEventDelegate` on `MUserPreference` `@AfterNew`; method body is an extension point. |
 
-This plugin ships **no** `ODTPackage*.xml` and **no** `2Pack_*.zip`. Startup install uses `META-INF/9999*.zip` only.
+This plugin ships **no** `ODTPackage*.xml` and **no** `2Pack_*.zip`. Startup install uses `META-INF/ODT2Pack-*.zip` only.
 
 ---
 
@@ -63,7 +63,7 @@ This plugin ships **no** `ODTPackage*.xml` and **no** `2Pack_*.zip`. Startup ins
 │  preInstall → create Default tenant                         │
 │  packInAll  → ODTPackage*.xml (none)                        │
 │             → 2Pack_*.zip (none)                            │
-│             → 9999*.zip (sorted by file name)               │
+│             → ODT2Pack-*.zip (sorted by version)                 │
 └────────────────────────────┬────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────┐
@@ -77,7 +77,7 @@ This plugin ships **no** `ODTPackage*.xml` and **no** `2Pack_*.zip`. Startup ins
 
 `Bundle-ActivationPolicy: lazy`. `Service-Component: OSGI-INF/*.xml`.
 
-`9999*.zip` naming: `yyyymmddHHMM_ClientValue_InformationalDescription.zip`, with year fixed as `9999`. The two packs in this module install in file-name order: **SYSTEM** before **Default**.
+The two packs install by version: **`ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip`** before **`ODT2Pack-1.0.1_Default_Tenant.zip`**.
 
 ---
 
@@ -113,8 +113,8 @@ myappx-plugin-tenant-default/                         # eclipse-plugin
 ├── README.en.md                                      # English (this file)
 ├── META-INF/
 │   ├── MANIFEST.MF
-│   ├── 999901010010_SYSTEM_Tenant_Default.zip        # system: EntityType DEFAULT
-│   └── 999902010010_Default_Tenant.zip               # tenant Default dictionary
+│   ├── ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip        # system: EntityType DEFAULT
+│   └── ODT2Pack-1.0.1_Default_Tenant.zip               # tenant Default dictionary
 ├── OSGI-INF/
 │   ├── DefaultAnnotationBasedEventManager.xml
 │   └── DefaultInitialSetupProcessFactory.xml
@@ -141,12 +141,12 @@ preInstallPackage()          # if Default tenant missing → CustomInitialClient
 packInAll()
     ├── packInODT()          → META-INF/ODTPackage*.xml (none in this module)
     ├── packIn2Pack()        → META-INF/2Pack_*.zip (none in this module)
-    └── packInFolder()       → META-INF/9999*.zip
+    └── packInFolder()       → META-INF/ODT2Pack-*.zip
     ↓
 postInstallPackage()         # empty hook
 ```
 
-`9999*.zip` installs by the Client segment in the file name; a pack already installed by file name is skipped. **MyAppx Plugin ODT** must already be deployed and resolvable. See `myappx-plugin-odt/README.md` for ODT + 2Pack details.
+`ODT2Pack-*.zip` installs by the Client segment in the file name; a pack already installed by file name is skipped. **MyAppx Plugin ODT** must already be deployed and resolvable. See `myappx-plugin-odt/README.md` for ODT + 2Pack details.
 
 ---
 
@@ -154,8 +154,8 @@ postInstallPackage()         # empty hook
 
 | File | Role |
 |------|------|
-| `999901010010_SYSTEM_Tenant_Default.zip` | System Pack-in: entity type `DEFAULT` |
-| `999902010010_Default_Tenant.zip` | Tenant `Default` Pack-in: roles, users, validation, personalization |
+| `ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip` | System Pack-in: entity type `DEFAULT` |
+| `ODT2Pack-1.0.1_Default_Tenant.zip` | Tenant `Default` Pack-in: roles, users, validation, personalization |
 
 Both packs are PackOutVersion `100`, version `1.0.0`.
 
@@ -282,7 +282,7 @@ Packed passwords and sample emails are **for development/demo only**. Change the
 
 `preInstallPackage()` calls `initClientSetup`:
 
-1. Query for `AD_Client` with `Name='Default'`. If it exists, log a warning and **skip** creation (no second Initial Client Setup). The parent still Packs-in `9999*.zip`.
+1. Query for `AD_Client` with `Name='Default'`. If it exists, log a warning and **skip** creation (no second Initial Client Setup). The parent still Packs-in `ODT2Pack-*.zip`.
 2. Otherwise start `CustomInitialClientSetup` as process **53161** (`@Process`, discovered by `DefaultInitialSetupProcessFactory`). The class uses core **`MSetup`**: `createClient4x` → `createCalendar` → `createAccounting` → `createAndValidateDocumentTypes` → `createEntities4x`.
 3. SQL writes the seed UUIDs so the tenant 2Pack can match by UUID.
 
@@ -365,7 +365,7 @@ Discovered by `DefaultAnnotationBasedEventManager` via `@EventTopicDelegate` + `
 
 1. The target instance already has **MyAppx Plugin ODT** (`org.idempiere.myappx.plugin.odt`).
 2. Place this plugin JAR in iDempiere `plugins/`. OSGi state should be **Resolved**. After server start the activator creates tenant `Default` if needed and completes Pack-in.
-3. Confirm `999901010010_SYSTEM_Tenant_Default` and `999902010010_Default_Tenant` in **Pack In**.
+3. Confirm `ODT2Pack-1.0.0_SYSTEM_Tenant_Default.zip` and `ODT2Pack-1.0.1_Default_Tenant.zip` in **Pack In**.
 
 ---
 
